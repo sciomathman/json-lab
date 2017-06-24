@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>JSON snippets</title>
+<style>
+.button {
+	width: 20%;
+	height: 150px;
+vertical-align:top;
+    border: none;
+    color: white;
+    padding: 5px 0px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 40px;
+    cursor: pointer;
+}
+.btnclearinput {
+    background-color: #808080;
+}
+.btnclearoutput {
+    background-color: #0f73b1;
+}
+</style>
+</head>
+<body>
+<script type="text/javascript">
+var lastkeycode = 13;
+function jsonstuff(txtarea,event){
+var jsonstring = "";
+	var output = "";
+	var jsonoutput=[];
+	var jsoncode=[];
+	var keyinfo = {keyname:"",valcount:0};
+    //var keys = {type:"",info:keyinfo
+	var newlinecode = "\n\r";
+	if(event.keyCode == 13 && lastkeycode != 13){
+	var jsonobject = CheckJSON(String.trim(txtarea.value));
+
+	if(jsonobject && jsonobject != false){
+	 var mkeycount = CountJSON(jsonobject);
+	 var mkeys =[];
+	 var mvalues = [];
+	 var mkeys_objects =[];	
+	  var mkeys_objects_empty =[];	
+      var mkeys_objects_array=[];
+	  var mkeys_objects_nonempty=[];	
+	  var emptyobjectcheck ="";
+
+		for(mk in jsonobject){
+			  	mkeys.push(mk);
+				mvalues.push(jsonobject[mk]);
+				if(typeof jsonobject[mk] == "object") {
+					mkeys_objects.push(mk);
+					//alert(isEmpty(jsonobject[mk]));
+					if(isEmpty(jsonobject[mk])){
+						if(emptyobjectcheck != "") emptyobjectcheck=emptyobjectcheck+'|';
+						mkeys_objects_empty.push(mk);
+						emptyobjectcheck = emptyobjectcheck + mk ;
+					}else mkeys_objects_nonempty.push(mk);
+					if(isArray(jsonobject[mk])) mkeys_objects_array.push(mk);
+				}
+			}
+	output = "Master Keys:" + mkeys +newlinecode;	
+	output = output + "Master Values:" + mvalues + newlinecode;
+	output = output + "Keys Count:" + mkeycount + newlinecode;
+	output = output + "Master Keys having Objects:" + mkeys_objects + newlinecode;
+	output = output + "Master Keys having Empty Objects:" + mkeys_objects_empty + newlinecode;
+	output = output + "Master Keys having Array Objects:" + mkeys_objects_array + newlinecode;
+	jsoncode.push("/*To Get all master elements and values of JSON*/"+newlinecode+"for(keys in JSON_Obj){" + newlinecode + "Key_Array.push(Keys);" + newlinecode + "Value_Array.push(JSON_Obj[keys]);" + newlinecode + "}" + newlinecode); 
+    jsonoutput.push("O/P:"+ "Key_Array[]=>" + mkeys + newlinecode + "Value_Array[]=>" + mvalues + newlinecode);
+
+
+     /*Create element workout*/
+     jsonobject["tempkey"] = "string";
+     mkeycount = CountJSON(jsonobject);
+jsoncode.push("/*To create a JSON element*/"+newlinecode+"JSON_Obj['tempkey']='string';" + newlinecode ); 
+    jsonoutput.push("O/P:"+ "JSON_Obj['tempkey']=>" + jsonobject["tempkey"]  + newlinecode + "Keys count =>" + mkeycount+ newlinecode);
+    /*Assign element workout*/
+     jsonobject.tempkey = "assignedstring";
+jsoncode.push("/*To assign a JSON element*/"+newlinecode+"JSON_Obj.tempkey ='assignedstring';" + newlinecode ); 
+    jsonoutput.push("O/P:"+ "JSON_Obj['tempkey']=>" + jsonobject.tempkey  + newlinecode);
+/*Non Empty Objects workout*/
+
+var nonemptykeys =[];
+for(j in jsonobject){
+	if((typeof jsonobject[j] == 'object') && (JSON.stringify(jsonobject[j]) != JSON.stringify({})) && (JSON.stringify(jsonobject[j]) !=JSON.stringify([]))){
+	nonemptykeys.push(j);
+	}
+}
+
+
+jsoncode.push("/*To list all master elements having non empty objects in JSON object*/"+newlinecode+"for(keys in JSON_Obj){" + newlinecode + "if((typeof JSON_Obj[keys] == 'object') && (JSON.stringify(JSON_Obj[keys]) != JSON.stringify({})) && (JSON.stringify(JSON_Obj[keys]) != JSON.stringify([]))){" + newlinecode + "NonEmptyObject.push(keys);" + newlinecode + "}" + newlinecode + "}" + newlinecode); 
+    jsonoutput.push("O/P:"+ "NonEmptyObject=>" + nonemptykeys + newlinecode);
+
+
+
+/*Browse through objects workout*/
+
+
+var browsejson = enumerate(jsonobject);
+jsoncode.push("/*To explore all elements of a given JSON object*/"+ newlinecode + "var browsejson = enumerate(JSON_Obj);"+newlinecode);
+jsonoutput.push("O/P:" + "JSON_Obj Keys and Values =>" + browsejson +newlinecode);
+
+
+
+
+
+
+   /*for(var i in unusedarr){
+    var key = i;
+    var val = unusedarr[i];
+    for(var j in val){
+        var sub_key = j;
+        var sub_val = val[j];*/
+
+
+
+
+	}else{
+	 return false;
+	}
+
+
+
+	
+
+
+	output = output + "/* JSON code workouts */" + newlinecode + newlinecode; 
+	for(i=0;i<jsoncode.length;i++){
+    output = output + jsoncode[i] + jsonoutput[i] + newlinecode;
+	}
+
+
+	var outbox = document.getElementById("txtout");
+	outbox.value = output;
+	
+	}
+lastkeycode = event.keyCode;
+}
+
+function CountJSON(jsonobj){
+var count = 0;
+for(c in jsonobj){
+	if(jsonobj.hasOwnProperty(c)) count++;
+}
+return count;
+}
+
+function CheckJSON(jsonstring){
+var erroroutput = document.getElementById("errors");
+    try {
+        var jsonobject = JSON.parse(jsonstring);
+        if (jsonobject) {
+			if(typeof jsonobject == "object"){
+			erroroutput.innerHTML ="No Errors";
+            return jsonobject;
+			}
+        }
+    }
+    catch (err) {
+        erroroutput.innerHTML ="Error:"+err.name + "["+err.message + "]";
+	 }
+
+    return false;
+}
+function rubit(txtarea){
+document.getElementById(txtarea).value = "";
+lastkeycode = 13;
+jsonobj = {results:"",lastisobj:false,lastisarray:false,lastkey:"",blockopen:false};//status object holds processing information
+
+}
+function isEmpty(obj) {
+    for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+    }
+
+    return ((JSON.stringify(obj) === JSON.stringify({})) || (JSON.stringify(obj) === JSON.stringify([])));
+}
+
+function isArray(obj){
+if( Object.prototype.toString.call(obj) === '[object Array]' ) {
+    return true;
+}
+return false;
+}
+
+//object empty or not check function
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+
+function isEmpty(obj) {    
+    if (obj == null) return true;// check obj is null or undefined and return as empty
+    if (obj.length > 0)    return false;//if obj.length exists and greater than zero return non-empty
+    if (obj.length === 0)  return true;//if obj.length exists and equal to zero return empty
+    for (var key in obj) {
+        if (hasOwnProperty.call(obj, key)) return false;//for IE >9 check whether it has any properties or not
+    }
+    return true;//for all other cases return empty
+}
+
+//explore JSON object end to end
+
+var jsonobj = {results:"",lastisobj:false,lastisarray:false,lastkey:"",blockopen:false};//status object holds processing information
+
+function enumerate(obj){
+
+if(isArray(obj)){
+	for (var k in obj){
+		var ele = obj[k];
+		if (typeof ele == "object"){	
+			    if(isEmpty(ele)){
+						if(isArray(ele)){
+						jsonobj.results = jsonobj.results + "#" + k + "[EmptyArray]";
+							//alert("array");
+						}else{
+						jsonobj.results = jsonobj.results + "#" + k + "[EmptyObject]";
+							//alert("object");
+						}
+				}else{
+					if(jsonobj.lastisobj == true){											
+					jsonobj.results = jsonobj.results + "#" + jsonobj.lastkey + "{";
+					jsonobj.blockopen = true;
+					jsonobj.lastisobj = false; 
+					jsonobj.lastisarray=true;
+					}			
+					jsonobj["obj"]=ele;
+				    enumerate(jsonobj.obj);
+				}
+			
+		}else{
+			if(jsonobj.lastisobj == true){											
+					jsonobj.results = jsonobj.results + "#" + jsonobj.lastkey;
+					}			
+		   jsonobj.results = jsonobj.results + "#" + jsonobj.lastkey + "[" + ele + "]";
+			jsonobj.lastisobj = false; 
+			jsonobj.lastisarray=false;
+		}
+		if(jsonobj.blockopen == true && k == (obj.length-1)){
+		jsonobj.results = jsonobj.results + "}";
+		jsonobj.blockopen = false;
+		}
+
+   	}
+
+} else {
+
+	for (var k in obj){
+	
+		if (typeof obj[k] == "object"){
+					if(isEmpty(obj[k])){				       
+						if(isArray(obj[k])){
+						jsonobj.results = jsonobj.results + "#" + k + "[EmptyArray]";
+							//alert("array");
+						}else{
+						jsonobj.results = jsonobj.results + "#" + k + "[EmptyObject]";
+							//alert("object");
+						}
+					} else{
+					if(jsonobj.lastisobj == true){											
+					jsonobj.results = jsonobj.results + "#" + jsonobj.lastkey;
+					}
+					jsonobj["obj"]=obj[k];
+					jsonobj.lastkey = k;
+					jsonobj.lastisobj=true;
+					jsonobj.lastisarray=false;
+				    enumerate(jsonobj.obj);
+					}
+		}else{
+				if(jsonobj.lastisobj == true){											
+					jsonobj.results = jsonobj.results + "#" + jsonobj.lastkey;
+					}
+		 	jsonobj.results = jsonobj.results + "#" + k + "[" + obj[k] + "]";
+			jsonobj.lastisobj=false;
+			jsonobj.lastisarray=false;
+		   
+		}
+	}
+
+}
+
+
+
+return jsonobj.results;
+}
+
+
+
+</script>
+<p>Press Enter Key to test JSON</p>
+<div style="width:100%"><textarea id="txtin" style="width: 70%;
+    height: 150px;
+	vertical-align:top;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #808080;
+	color:white;
+    font-size: 16px;
+    resize: none;" onkeyup = "jsonstuff(this,event);return false;"></textarea>
+<input type="button" class="button btnclearinput" value="X" onclick="rubit('txtin')"></div>
+<div style="width:100%"><textarea id="txtout" style="width: 70%;
+    height: 150px;
+	vertical-align:top;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    background-color: #0f73b1;
+	color:white;
+    font-size: 16px;
+    resize: none;"></textarea>
+<input type="button" class="button btnclearoutput" value="X" onclick="rubit('txtout')"></div>
+<div><p id="errors"></p></div>
+</body>
+</html>
